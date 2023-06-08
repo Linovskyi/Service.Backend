@@ -8,6 +8,7 @@ using MediatR;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Identity;
 using System.Text.Json.Serialization;
+using System.Threading.RateLimiting;
 using DogsService.Domain;
 using DogsService.WebApi;
 using DogsService.WebApi.Services;
@@ -18,6 +19,10 @@ using Swashbuckle.AspNetCore.SwaggerGen;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
+using Serilog.Events;
+using AspNetCoreRateLimit;
+
+
 
 public class Program
 {
@@ -28,8 +33,21 @@ public class Program
         var config = builder.Configuration;
 
 
+        Log.Logger = new LoggerConfiguration()
+            .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
+            .WriteTo.File("DogsWebAppLog-.txt", rollingInterval:
+                RollingInterval.Day)
+            .CreateLogger();
 
         // Add services to the container.
+        services.AddOptions();
+        services.AddMemoryCache();
+        services.Configure<IpRateLimitOptions>(config.GetSection("IpRateLimiting"));
+        services.Configure<IpRateLimitPolicies>(config.GetSection("IpRateLimitPolicies"));
+        services.AddInMemoryRateLimiting();
+        services.AddSingleton<IRateLimitConfiguration, RateLimitConfiguration>();
+
+
         services.AddAutoMapper(config =>
         {
             config.AddProfile(new AssemblyMappingProfile(Assembly.GetExecutingAssembly()));
@@ -59,7 +77,7 @@ public class Program
             .AddJwtBearer("Bearer", options =>
             {
                 options.Authority = "https://localhost:44386/";
-                options.Audience = "NotesWebAPI";
+                options.Audience = "DogsWebAPI";
                 options.RequireHttpsMetadata = false;
             });
 
@@ -71,6 +89,8 @@ public class Program
 
         services.AddSingleton<ICurrentUserService, CurrentUserService>();
         services.AddHttpContextAccessor();
+        services.AddControllers();
+
 
         var app = builder.Build();
 
@@ -93,6 +113,7 @@ public class Program
 
 
         // Configure the HTTP request pipeline.
+        app.UseIpRateLimiting();
         app.UseSwagger();
         app.UseSwaggerUI(config =>
         {
