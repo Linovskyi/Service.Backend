@@ -1,7 +1,4 @@
 ﻿using System.Security.Claims;
-using System;
-using System.Security.Claims;
-using Microsoft.AspNetCore.Http;
 using DogsService.Application.Interfaces;
 
 namespace DogsService.WebApi.Services

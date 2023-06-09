@@ -7,6 +7,7 @@ using DogsService.Application.Dogs.Queries.GetDogList;
 using DogsService.WebApi.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ApiExplorer;
 
 namespace DogsService.WebApi.Controllers
 {
@@ -16,24 +17,38 @@ namespace DogsService.WebApi.Controllers
 
         public DogController(IMapper mapper) => _mapper = mapper;
 
-        [HttpGet]
-        [Authorize]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public async Task<ActionResult<DogListVm>> GetAll()
+        [HttpGet("ping")]
+        public ActionResult<string> Ping([FromServices] IApiVersionDescriptionProvider versionProvider)
+        {
+            var apiVersion = versionProvider.ApiVersionDescriptions.FirstOrDefault();
+            var version = apiVersion?.GroupName ?? "Unknown";
+            var message = $"Dogs house service. Version {version}";
+
+            return Ok(message);
+        }
+
+        [HttpGet ("dogs")]
+        //[Authorize]
+        //[ProducesResponseType(StatusCodes.Status200OK)]
+        //[ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public async Task<ActionResult<DogListVm>> GetAll(string attribute, string order, int pageNumber, int pageSize)
         {
             var query = new GetDogListQuery
             {
-                UserId = UserId
+                UserId = UserId,
+                Attribute = attribute,
+                Order = order,
+                PageNumber = pageNumber,
+                PageSize = pageSize
             };
             var vm = await Mediator.Send(query);
             return Ok(vm);
         }
 
         [HttpGet("{id}")]
-        [Authorize]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        //[Authorize]
+        //[ProducesResponseType(StatusCodes.Status200OK)]
+        //[ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<ActionResult<DogDetailsVm>> Get(Guid id)
         {
             var query = new GetDogDetailsQuery
@@ -45,10 +60,10 @@ namespace DogsService.WebApi.Controllers
             return Ok(vm);
         }
 
-        [HttpPost]
-        [Authorize]
-        [ProducesResponseType(StatusCodes.Status201Created)]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [HttpPost ("dog")]
+        //[Authorize]
+        //[ProducesResponseType(StatusCodes.Status201Created)]
+        //[ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<ActionResult<Guid>> Create([FromBody] CreateDogDto createDogDto)
         {
             var command = _mapper.Map<CreateDogCommand>(createDogDto);
@@ -57,10 +72,10 @@ namespace DogsService.WebApi.Controllers
             return Ok(dogId);
         }
 
-        [HttpPut]
-        [Authorize]
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [HttpPut ("dog")]
+        //[Authorize]
+        //[ProducesResponseType(StatusCodes.Status204NoContent)]
+        //[ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> Update([FromBody] UpdateDogDto updateDogDto)
         {
             var command = _mapper.Map<UpdateDogCommand>(updateDogDto);
@@ -70,9 +85,9 @@ namespace DogsService.WebApi.Controllers
         }
 
         [HttpDelete("{id}")]
-        [Authorize]
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        //[Authorize]
+        //[ProducesResponseType(StatusCodes.Status204NoContent)]
+        //[ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> Delete(Guid id)
         {
             var command = new DeleteDogCommand

@@ -23,6 +23,11 @@ namespace DogsService.Application.Dogs.Commands.UpdateDog
                 throw new NotFoundException(nameof(Dog), request.Id);
             }
 
+            if (_dbContext.Dogs.Any(d => d.Name == request.Name))
+            {
+                throw new CreateValidationException(nameof(Dog), request.Name);
+            }
+
             entity.Name = request.Name;
             entity.Color = request.Color;
             entity.TailLength = request.TailLength;

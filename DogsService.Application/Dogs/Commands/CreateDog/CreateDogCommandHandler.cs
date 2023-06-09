@@ -1,4 +1,5 @@
-﻿using DogsService.Application.Interfaces;
+﻿using DogsService.Application.Common.Exceptions;
+using DogsService.Application.Interfaces;
 using DogsService.Domain;
 using MediatR;
 
@@ -13,6 +14,11 @@ namespace DogsService.Application.Dogs.Commands.CreateDog
 
         public async Task<Guid> Handle(CreateDogCommand request, CancellationToken cancellationToken)
         {
+            if (_dbContext.Dogs.Any(d => d.Name == request.Name))
+            {
+                throw new CreateValidationException(nameof(Dog), request.Name);
+            }
+
             var dog = new Dog
             {
                 UserId = request.UserId,

@@ -1,11 +1,8 @@
 ﻿using MediatR;
 using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
+using DogsService.Application.Common.Behaviors;
+using FluentValidation;
 
 namespace DogsService.Application
 {
@@ -15,12 +12,12 @@ namespace DogsService.Application
             this IServiceCollection services)
         {
             services.AddMediatR(Assembly.GetExecutingAssembly());
-            //services
-            //    .AddValidatorsFromAssemblies(new[] { Assembly.GetExecutingAssembly() });
-            //services.AddTransient(typeof(IPipelineBehavior<,>),
-            //    typeof(ValidationBehavior<,>));
-            //services.AddTransient(typeof(IPipelineBehavior<,>),
-            //    typeof(LoggingBehavior<,>));
+            services
+                .AddValidatorsFromAssemblies(new[] { Assembly.GetExecutingAssembly() });
+            services.AddTransient(typeof(IPipelineBehavior<,>),
+                typeof(ValidationBehavior<,>));
+            services.AddTransient(typeof(IPipelineBehavior<,>),
+                typeof(LoggingBehavior<,>));
             return services;
         }
     }
