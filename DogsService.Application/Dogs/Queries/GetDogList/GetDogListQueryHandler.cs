@@ -51,8 +51,6 @@ namespace DogsService.Application.Dogs.Queries.GetDogList
                     .ProjectTo<DogLookupDto>(_mapper.ConfigurationProvider)
                 .ToListAsync(cancellationToken);
 
-                dogsQuery = (List<DogLookupDto>)dogsQuery.Skip((request.PageNumber - 1) * request.PageSize).Take(request.PageSize);
-
                 return new DogListVm { Dogs = dogsQuery };
             }
         }

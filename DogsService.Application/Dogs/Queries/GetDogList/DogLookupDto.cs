@@ -15,7 +15,7 @@ namespace DogsService.Application.Dogs.Queries.GetDogList
 
         public void Mapping(Profile profile)
         {
-            profile.CreateMap<Dog, DogDetailsVm>()
+            profile.CreateMap<Dog, DogLookupDto>()
                 .ForMember(dogVm => dogVm.Id, opt => opt.MapFrom(dog => dog.Id))
                 .ForMember(dogVm => dogVm.Name, opt => opt.MapFrom(dog => dog.Name))
                 .ForMember(dogVm => dogVm.Color, opt => opt.MapFrom(dog => dog.Color))
